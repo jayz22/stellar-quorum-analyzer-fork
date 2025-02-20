@@ -1,4 +1,4 @@
-use crate::{FbasAnalyzer, SolveStatus};
+use crate::{FbasAnalyzer, SolveStatus, callback::ResourceLimitingCB};
 use batsat::callbacks::{AsyncInterrupt, Basic};
 use std::collections::BTreeMap;
 use std::{io::BufRead, str::FromStr};
@@ -23,6 +23,33 @@ fn test_solver_interrupt() -> Result<(), Box<dyn std::error::Error>> {
         std::thread::sleep(std::time::Duration::from_micros(100));
         handle.interrupt_async();
     });
+    assert_eq!(solver.solve(), SolveStatus::UNKNOWN);
+    Ok(())
+}
+
+#[test]
+fn test_resource_limit() -> Result<(), Box<dyn std::error::Error>> {
+    let json_file = std::path::PathBuf::from(
+        "./tests/test_data/random/almost_symmetric_network_16_orgs_delete_prob_factor_3.json",
+    );
+    // first solve it without interruption, it should return `UNSAT`
+    let mut solver = FbasAnalyzer::from_json_path(
+        json_file.as_os_str().to_str().unwrap(),
+        ResourceLimitingCB::new(1000, 10000000),
+    )?;
+    assert_eq!(solver.solve(), SolveStatus::UNSAT);
+
+    // reaching time limit
+    let mut solver = FbasAnalyzer::from_json_path(
+        json_file.as_os_str().to_str().unwrap(),
+        ResourceLimitingCB::new(1, 10000000)
+    )?;
+    assert_eq!(solver.solve(), SolveStatus::UNKNOWN);
+    // reaching memory limit
+    let mut solver = FbasAnalyzer::from_json_path(
+        json_file.as_os_str().to_str().unwrap(),
+        ResourceLimitingCB::new(1000, 100000)
+    )?;
     assert_eq!(solver.solve(), SolveStatus::UNKNOWN);
     Ok(())
 }

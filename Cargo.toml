@@ -20,6 +20,7 @@ splr = "=0.17.2"
 prettytable = "0.10.0"
 dimacs = "0.2.0"
 json = { version = "0.12.4" }
+tracking-allocator = "=0.4.0"
 
 [[bench]]
 harness = false
@@ -28,5 +29,5 @@ name = "solver_comparison"
 path = "benches/solver_comparison.rs"
 
 [features]
-default = []
+default = ["json"]
 json = ["dep:json"]

@@ -1,5 +1,5 @@
 mod allocator;
-
+pub(crate) mod callback;
 pub(crate) mod fbas;
 pub(crate) mod fbas_analyze;
 
@@ -12,3 +12,4 @@ mod test;
 pub use batsat::callbacks::{AsyncInterrupt, AsyncInterruptHandle, Basic, Callbacks};
 pub use fbas::FbasError;
 pub use fbas_analyze::{FbasAnalyzer, SolveStatus};
+pub use callback::ResourceLimitingCB;
